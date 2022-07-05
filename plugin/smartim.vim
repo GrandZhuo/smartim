@@ -26,6 +26,7 @@ endif
 
 let s:imselect_path = expand('<sfile>:p:h') . "/im-select "
 let s:smartim_debug_output = $HOME . "/vim_smartim_debug_output"
+let s:original_timeoutlen = &timeoutlen
 
 function! Smartim_debug_print(msg)
   if g:smartim_debug == 0
@@ -65,6 +66,7 @@ function! Smartim_SelectDefault()
 
   call Smartim_debug_print('b:saved_im = ' . b:saved_im)
   call Smartim_debug_print('<<< Smartim_SelectDefault returned ' . v:shell_error)
+  let &timeoutlen = s:original_timeoutlen
 endfunction
 
 function! Smartim_SelectSaved()
@@ -74,6 +76,7 @@ function! Smartim_SelectSaved()
     return
   endif
 
+  set timeoutlen=0
   if exists("b:saved_im")
     silent call system(s:imselect_path . b:saved_im)
     call Smartim_debug_print('b:saved_im = ' . b:saved_im)
