@@ -112,12 +112,31 @@ function! Smartim_OnCmdLineLeave()
   call Smartim_SelectDefault()
 endfunction
 
+function! Smartim_OnModeChanged()
+  call Smartim_debug_print('>>> Smartim_OnModeChanged')
+
+  if g:smartim_disable == 1
+    return
+  endif
+
+  let l:mode = mode()
+  if l:mode =~? '^n' " normal mode
+    let &timeoutlen = s:original_timeoutlen
+    call Smartim_SelectDefault()
+  elseif l:mode =~? '^i' || l:mode =~? '^c' || l:mode =~? '^r' " insert like mode
+    let &timeoutlen=0
+    call Smartim_SelectSaved()
+  endif
+endfunction
+
 augroup smartim
   autocmd!
   autocmd VimLeavePre * call Smartim_SelectDefault()
-  autocmd InsertLeave * call Smartim_SelectDefault()
-  autocmd InsertEnter * call Smartim_SelectSaved()
-  autocmd CmdlineLeave * call Smartim_OnCmdLineLeave()
+  " autocmd InsertLeave * call Smartim_SelectDefault()
+  " autocmd InsertEnter * call Smartim_SelectSaved()
+  " autocmd CmdlineLeave * call Smartim_OnCmdLineLeave()
+
+  autocmd ModeChanged * call Smartim_OnModeChanged()
 augroup end
 
 " vim:ts=2:sw=2:sts=2
