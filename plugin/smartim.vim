@@ -20,6 +20,10 @@ if !exists("g:smartim_disable")
   let g:smartim_disable = 0
 endif
 
+if !exists("g:smartim_recover_on_insert")
+  let g:smartim_recover_on_insert = 1
+endif
+
 if !exists("g:smartim_debug")
   let g:smartim_debug = 0
 endif
@@ -83,7 +87,7 @@ endfunction
 function! Smartim_SelectSaved()
   call Smartim_debug_print('>>> Smartim_SelectSaved')
 
-  if g:smartim_disable == 1 
+  if g:smartim_disable == 1 || g:smartim_recover_on_insert == 0
     return
   endif
 
