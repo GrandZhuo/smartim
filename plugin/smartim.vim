@@ -102,12 +102,22 @@ function! Smartim_SelectSaved()
   endif
 endfunction
 
+function! Smartim_OnCmdLineLeave()
+  call Smartim_debug_print('>>> Smartim_OnCmdLineLeave')
+
+  if g:smartim_disable == 1 || mode() !=# 'n'
+    return
+  endif
+
+  call Smartim_SelectDefault()
+endfunction
+
 augroup smartim
   autocmd!
   autocmd VimLeavePre * call Smartim_SelectDefault()
   autocmd InsertLeave * call Smartim_SelectDefault()
-  autocmd CmdlineLeave * call Smartim_SelectDefault()
   autocmd InsertEnter * call Smartim_SelectSaved()
+  autocmd CmdlineLeave * call Smartim_OnCmdLineLeave()
 augroup end
 
 " vim:ts=2:sw=2:sts=2
