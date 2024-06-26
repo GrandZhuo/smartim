@@ -1,8 +1,8 @@
 " =============================================================================
 " A plugin to make vim stand well with input methods (Mac only)
 " Author:       Ying Bian <bianying@gmail.com>
-" Last Change:  2017-03-30
-" Version:      1.0.0
+" Last Change:  2022-09-27
+" Version:      1.0.1
 " Repository:   https://github.com/ybian/smartim
 " License:      MIT
 " =============================================================================
@@ -24,7 +24,7 @@ if !exists("g:smartim_debug")
   let g:smartim_debug = 0
 endif
 
-let s:imselect_path = expand('<sfile>:p:h') . "/im-select "
+let s:imselect_path = expand('<sfile>:p:h') . "/im-select"
 let s:smartim_debug_output = $HOME . "/vim_smartim_debug_output"
 let s:original_timeoutlen = &timeoutlen
 
@@ -54,32 +54,48 @@ endfunction
 
 call Smartim_start_debug()
 
+function! Smartim_GetInputMethodHandler(channel, msg)
+  silent let b:saved_im = a:msg
+  silent call system(s:imselect_path . ' ' .g:smartim_default)
+  call Smartim_debug_print('b:saved_im = ' . b:saved_im)
+  call Smartim_debug_print('<<< Smartim_SelectDefault returned ' . v:shell_error)
+endfunction
+
 function! Smartim_SelectDefault()
   call Smartim_debug_print('>>> Smartim_SelectDefault')
 
-  if g:smartim_disable == 1
+  if g:smartim_disable == 1 
     return
   endif
 
-  silent let b:saved_im = system(s:imselect_path)
-  silent call system(s:imselect_path . g:smartim_default)
+  if has('job')
+    call job_start([s:imselect_path], {'callback': 'Smartim_GetInputMethodHandler'})
+  else
+    silent let b:saved_im = system(s:imselect_path)
+    silent call system(s:imselect_path . ' ' . g:smartim_default)
+    call Smartim_debug_print('b:saved_im = ' . b:saved_im)
+    call Smartim_debug_print('<<< Smartim_SelectDefault returned ' . v:shell_error)
+    let &timeoutlen = s:original_timeoutlen
+  endif
 
-  call Smartim_debug_print('b:saved_im = ' . b:saved_im)
-  call Smartim_debug_print('<<< Smartim_SelectDefault returned ' . v:shell_error)
-  let &timeoutlen = s:original_timeoutlen
 endfunction
 
 function! Smartim_SelectSaved()
   call Smartim_debug_print('>>> Smartim_SelectSaved')
 
-  if g:smartim_disable == 1
+  if g:smartim_disable == 1 
     return
   endif
 
   set timeoutlen=0
-  if exists("b:saved_im")
-    silent call system(s:imselect_path . b:saved_im)
-    call Smartim_debug_print('b:saved_im = ' . b:saved_im)
+  if exists("b:saved_im") && b:saved_im != g:smartim_default
+    if has('job')
+      call job_start([s:imselect_path, b:saved_im])
+    else
+      silent call system(s:imselect_path . ' '. b:saved_im)
+    endif
+     
+    call Smartim_debug_print('b:saved_im=' . b:saved_im.'')
     call Smartim_debug_print('<<< Smartim_SelectSaved returned ' . v:shell_error)
   else
     call Smartim_debug_print('<<< Smartim_SelectSaved returned')
