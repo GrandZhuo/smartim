@@ -158,6 +158,7 @@ endfunction
 augroup smartim
   autocmd!
   autocmd VimLeavePre * call Smartim_SelectDefault()
+  autocmd VimEnter * call Smartim_SelectDefault()
   " autocmd InsertLeave * call Smartim_SelectDefault()
   " autocmd InsertEnter * call Smartim_SelectSaved()
   " autocmd CmdlineLeave * call Smartim_OnCmdLineLeave()
