@@ -163,8 +163,9 @@ augroup smartim
   " autocmd CmdlineLeave * call Smartim_OnCmdLineLeave()
 
   "autocmd ModeChanged * call Smartim_OnModeChanged()
-  autocmd ModeChanged [^vV\x16]*:n* call Smartim_OnEnterNormalMode()
-  autocmd ModeChanged n*:[^vV\x16]* call Smartim_OnLeaveNormalMode()
+  "autocmd ModeChanged * call Smartim_debug_print('=========== ModeChanged: '. string(v:event))
+  autocmd ModeChanged [^vV\x16n]*:n* call Smartim_OnEnterNormalMode()
+  autocmd ModeChanged n*:[^vV\x16n]* call Smartim_OnLeaveNormalMode()
 augroup end
 
 " vim:ts=2:sw=2:sts=2
